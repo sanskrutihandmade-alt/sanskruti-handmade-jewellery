@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Executable implementation tasks for the Sanskruti local-first full-stack storefront plan.",
+  "tasks": [
+    {
+      "type": "transform",
+      "id": "001-transform-full-stack-foundation",
+      "description": "Create a local Next.js/React and Node.js/Express foundation while preserving the existing Sanskruti catalogue experience. Addresses assessment issues: static-only storefront, package/build foundation, existing application preservation, and public browser configuration.",
+      "reason": "The assessed project is a static catalogue with no package manifest, server, API boundary, or test/build workflow.",
+      "requirements": "Create the requested Next.js/React frontend and Node.js/Express backend with a documented local-first developer workflow and focused build/test scripts. Migrate the current storefront presentation and all 12 hardcoded product records, copy, category filtering, local image assets, brand styling, public contact/social details, and WhatsApp enquiry flow wherever practical. Preserve “Enquire for price”; do not invent prices. Keep browser configuration public-only and establish ignored environment configuration with placeholder-only examples. Do not add deployment or infrastructure work. Validate the local build/start path and focused storefront tests, including catalogue rendering, category filtering, responsive/navigation behavior, and WhatsApp links.",
+      "dependencies": [],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "transform",
+      "id": "002-transform-mongodb-admin",
+      "description": "Add MongoDB-backed catalogue, order, customer, and non-quantity inventory records with secure single-owner administration. Addresses assessment issues: catalogue data is not managed, database configuration, admin ownership and secrets, and inventory scope.",
+      "reason": "The current catalogue is hardcoded and the application has no persistence or administrative interface.",
+      "requirements": "Build on task 001. Add MongoDB persistence and server-owned APIs for products, orders, customers, and inventory records. Inventory must not contain or track stock quantities and must not imply quantity-based availability. Add secure single-owner admin authentication and server-side authorization for protected management operations; do not ship a default/demo production credential or rely on client-only access control. Read database and authentication secrets only from environment configuration. If MongoDB is absent or disconnected, clearly identify the local/unavailable state and do not claim data was saved. Add focused model/API, validation, authorization, and disconnected-database tests; verify unauthorized users cannot access protected operations.",
+      "dependencies": [
+        "001-transform-full-stack-foundation"
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "transform",
+      "id": "003-transform-cloudinary-media",
+      "description": "Add secure Cloudinary-backed product image management with honest unconfigured behavior. Addresses assessment issues: image storage and local/demo truthfulness.",
+      "reason": "The current app uses local images only and has no managed product-image upload capability.",
+      "requirements": "Build on task 002. Add an owner-authorized server-side image upload flow using Cloudinary configuration from environment variables only; do not expose Cloudinary secrets or privileged upload credentials to browser code. Preserve supplied local imagery and allow the storefront to continue rendering it when Cloudinary is not configured. Report upload success only after the real upload completes; otherwise present a clear unavailable/error state without persisting a false success. Add focused authorization, configuration-missing, upload-success, and upload-failure tests using a controlled provider boundary.",
+      "dependencies": [
+        "002-transform-mongodb-admin"
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "transform",
+      "id": "004-transform-razorpay-checkout",
+      "description": "Add persisted customer/order checkout and Razorpay payments with server-side verification. Addresses assessment issues: payment trust boundary, order/customer data and policies, and local/demo truthfulness.",
+      "reason": "The assessed storefront supports enquiries only and has no cart, order/customer persistence, or payment flow.",
+      "requirements": "Build on task 003. Add checkout and order/customer persistence through the server and use Razorpay configuration from environment variables only. The server must create/validate payment orders and verify the Razorpay payment signature and authoritative payment status before changing an order to paid. Never trust a client-side success flag, callback payload, or redirect as proof of payment. Keep the existing WhatsApp enquiry option and do not invent product prices. With missing payment configuration, clearly disable or mark online checkout unavailable; never report a successful charge or order payment. Add focused tests for order creation, invalid/tampered signature, client-asserted success rejection, verified success, duplicate/replayed verification handling, and missing configuration. Document that delivery, cancellation/refund, and customer-data retention policies remain production prerequisites.",
+      "dependencies": [
+        "003-transform-cloudinary-media"
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "security",
+      "id": "005-security-dependency-and-boundary-review",
+      "description": "Review and remediate dependency vulnerabilities and verify application security boundaries. Addresses assessment issues: admin ownership and secrets, payment trust boundary, and absence of dependency/build metadata.",
+      "reason": "The project has no dependency manifest or security controls today, and the requested application adds privileged administration, customer/order data, uploads, and payments.",
+      "requirements": "After tasks 001–004 establish the application and dependency manifest, scan dependencies for known CVEs and upgrade vulnerable dependencies to patched versions; document major-version risks if unavoidable and rerun build/tests. Verify secrets are excluded from source and browser bundles, protected admin operations require server-side owner authentication, upload endpoints are authorized and validate inputs, and payment state can only be finalized through valid server-side Razorpay verification. Confirm unconfigured integrations never claim successful persistence, upload, or payment. Record remaining production configuration/policy blockers without adding credentials.",
+      "dependencies": [
+        "004-transform-razorpay-checkout"
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "true",
+        "passUnitTests": "true"
+      }
+    }
+  ],
+  "metadata": {
+    "planName": "sanskruti-full-stack",
+    "projectName": "Sanskruti Handmade Jewellery",
+    "language": "javascript",
+    "createdAt": "2026-11-17T14:25:16.574+05:30",
+    "version": "1.0"
+  }
+}
