@@ -23,7 +23,7 @@ function render(filter='All'){
 document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x===b));render(b.dataset.filter)});
 document.querySelectorAll('.category-card').forEach(card=>card.addEventListener('click',()=>{const f=card.dataset.filter;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x.dataset.filter===f));render(f)}));
 const wa=whatsappLink('Hello Sanskruti! I would like to know more about your jewellery collection.');['footerWhatsApp','floatingWhatsApp'].forEach(id=>{const el=document.getElementById(id);el.href=wa;if(wa==='#contact')el.removeAttribute('target');else el.target='_blank';el.rel='noreferrer'});
-document.getElementById('purchaseEnquiry').addEventListener('submit',async event=>{
+document.getElementById('purchaseEnquiry').addEventListener('submit',event=>{
   event.preventDefault();
   const form=event.currentTarget;
   if(!form.reportValidity())return;
@@ -44,41 +44,10 @@ document.getElementById('purchaseEnquiry').addEventListener('submit',async event
     'Please confirm the price and availability, and guide me through checkout.'
   ].join('\n');
   const link=whatsappLink(message);
-  const whatsappWindow=link==='#contact'?null:window.open('about:blank','_blank');
-  if(whatsappWindow)whatsappWindow.opener=null;
-  const submitButton=form.querySelector('button[type="submit"]');
   const formStatus=document.getElementById('formStatus');
-  submitButton.disabled=true;
-  formStatus.textContent='Saving your enquiry...';
-  try{
-    const response=await fetch('/api/enquiries',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        name:details.get('name'),
-        email:details.get('email'),
-        mobile:details.get('mobile'),
-        product:details.get('product'),
-        quantity:Number(details.get('quantity'))
-      })
-    });
-    const result=await response.json().catch(()=>({}));
-    if(!response.ok)throw new Error(result.error||'We could not save your enquiry. Please try again.');
-    formStatus.textContent='Enquiry saved. Continuing to WhatsApp...';
-    form.reset();
-    if(link==='#contact'){
-      formStatus.textContent='Enquiry saved, but WhatsApp is unavailable right now. Please contact us by email.';
-    }else if(whatsappWindow){
-      whatsappWindow.location.href=link;
-    }else{
-      window.location.assign(link);
-    }
-  }catch(error){
-    if(whatsappWindow&&!whatsappWindow.closed)whatsappWindow.close();
-    formStatus.textContent=error instanceof Error?error.message:'We could not save your enquiry. Please try again.';
-  }finally{
-    submitButton.disabled=false;
-  }
+  if(link==='#contact'){formStatus.textContent='WhatsApp is unavailable. Please contact us by email.';return}
+  formStatus.textContent='Opening WhatsApp with your enquiry...';
+  window.open(link,'_blank','noopener,noreferrer');
 });
 document.getElementById('customerMobile').addEventListener('input',event=>event.currentTarget.setCustomValidity(''));
 const menu=document.getElementById('menuToggle'),nav=document.getElementById('mainNav');menu.addEventListener('click',()=>{const open=nav.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));menu.textContent=open?'×':'☰'});nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');menu.setAttribute('aria-expanded','false');menu.textContent='☰'}));
