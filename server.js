@@ -84,7 +84,7 @@ app.use((_req, res) => {
 async function start() {
   await client.connect();
   await client.db(databaseName).command({ ping: 1 });
-  app.listen(port, "127.0.0.1", () => {
+  app.listen(port, "0.0.0.0", () => {
     console.log(`Sanskruti site available at http://localhost:${port}`);
     console.log(`MongoDB connection ready for database "${databaseName}"`);
   });
